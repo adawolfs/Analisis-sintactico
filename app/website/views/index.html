@@ -1,0 +1,105 @@
+<html>
+<head>
+<title><%= title %></title>
+<script src="js/jquery-2.1.4.js"></script>
+<script src="js/jquery.jsonify-0.3.min.js"></script>
+
+</head>
+<body>
+<div>
+	<textarea id='expresion'></textarea>
+	<button onclick="sendExp()">Send</button>
+</div>
+<div>
+	<textarea id='nonRecursive'></textarea>
+	<button onclick="first()">Send</button>
+</div>
+<div>
+	<textarea id='functionFirst'></textarea>
+	<button onclick="next()">Send</button>
+</div>
+
+<div>
+	<textarea id='functionNext'></textarea>
+	<button onclick="next()">Send</button>
+</div>
+<script type="text/javascript">
+var nonRecursiveExp
+function sendExp(){
+	var value = $("#expresion").val()
+	var data = JSON.stringify({value:value})
+	$.ajax({
+		dataType:"json",
+		contentType: "application/json; charset=utf-8",
+		method: "POST",
+		url: "/leftRecursion",
+		data:data
+	})
+	.success(function(data){
+		nonRecursiveExp = data
+		var gramars = ''
+		$(data).each(function(index,gram){
+			var key = gram.key
+			var tokens = ''
+			$(gram.tokens).each(function(i,token){
+				if(tokens != ''){
+					tokens += '|'
+				}
+				tokens += token 
+			})
+			gramars += key + '->\t' + tokens + '\n'
+		})
+		$("#nonRecursive").val(gramars)
+	})
+}
+function first(){
+	var data = JSON.stringify({value:nonRecursiveExp})
+	$.ajax({
+		dataType:"json",
+		contentType: "application/json; charset=utf-8",
+		method: "POST",
+		url: "/functionFirst",
+		data:data
+	})
+	.success(function(data){
+		var gramars = ''
+		$(data).each(function(index,gram){
+			var key = gram.key
+			var tokens = ''
+			$(gram.tokens).each(function(i,token){
+				if(tokens != ''){
+					tokens += '|'
+				}
+				tokens += token 
+			})
+			gramars += key + '->\t' + tokens + '\n'
+		})
+		$("#functionFirst").val(gramars)
+	})
+}
+function next(){
+	$.ajax({
+		dataType:"json",
+		contentType: "application/json; charset=utf-8",
+		method: "POST",
+		url: "/functionNext"
+	})
+	.success(function(data){
+		var gramars = ''
+		$(data).each(function(index,gram){
+			var key = gram.key
+			var tokens = ''
+			$(gram.tokens).each(function(i,token){
+				if(tokens != ''){
+					tokens += '|'
+				}
+				tokens += token 
+			})
+			gramars += key + '->\t' + tokens + '\n'
+		})
+		$("#functionNext").val(gramars)
+	})
+}
+</script>
+</body>
+</html>
